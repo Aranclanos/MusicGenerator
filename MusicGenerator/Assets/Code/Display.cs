@@ -7,7 +7,7 @@ public class Display : MonoBehaviour
 {
     public SongGenerator songGenerator;
 
-    public Text tempoText;
+    public UnityEngine.UI.Text tempoText;
     public Text escalaText;
     public Text notaBaseText;
     
@@ -50,7 +50,7 @@ public class Display : MonoBehaviour
             var notation = songGenerator.melodyList[i];
             var purpleNote = notation.gameObject;
             float yPosition = songGenerator.gradoList[notation.pitch].semitono + songGenerator.notaBase;
-            purpleNote.transform.position = new Vector3(notation.time/2, yPosition/2 + 6 ,-2);
+            purpleNote.transform.position = new Vector3(notation.time/2 - (0.75f * (int)notation.noteLenght), yPosition/2 + 6 ,-2);
             notation.noteCube.transform.localScale = new Vector3((float)notation.noteLenght/2, notation.noteCube.transform.localScale.y, 1);
             purpleNote.name = $"melody note:  pitch: {notation.pitch} --- length: {(int)notation.noteLenght}";
         }

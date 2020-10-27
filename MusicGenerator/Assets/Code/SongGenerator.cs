@@ -24,13 +24,14 @@ public class SongGenerator : MonoBehaviour
     public int antiTension = 0;
 
     public Display display;
+    public MusicPlayer musicPlayer;
     
     public List<Notation> melodyList = new List<Notation>();
     public List<Notation> chordList = new List<Notation>();
     
     private void Start()
     {
-        for (var i = 0; i < 8; i++)
+        for (var i = 0; i < 7; i++)
         {
             var grado = new Grado();
             gradoList.Add(grado);
@@ -43,7 +44,7 @@ public class SongGenerator : MonoBehaviour
         gradoList[4].gradoName = GradoName.dominante;       // "V";    // Dominante
         gradoList[5].gradoName = GradoName.submediante;     // "VI";   // Submediante
         gradoList[6].gradoName = GradoName.sensible;        // "VII";  // Sensible
-        gradoList[7].gradoName = GradoName.tonicaplus;          // "I+";
+        //gradoList[7].gradoName = GradoName.tonicaplus;          // "I+";
         
         for (var i = 0; i < 7; i++)
         {
@@ -52,7 +53,7 @@ public class SongGenerator : MonoBehaviour
         }
 
         escalaList[0].name = "jonico";
-        escalaList[0].semiTonos = new List<int>(){0,2,2,1,2,2,2,1};
+        escalaList[0].semiTonos = new List<int>(){0,2,2,1,2,2,2,1}; //1
         escalaList[1].name = "dorico";
         escalaList[1].semiTonos = new List<int>(){0,2,1,2,2,2,1,2};
         escalaList[2].name = "frigio";
@@ -71,6 +72,7 @@ public class SongGenerator : MonoBehaviour
 
     public void RunProgram()
     {
+        musicPlayer.Stop();
         acordePrimeraList.Clear();
         acordeTerceraList.Clear();
         acordeQuintaList.Clear();
