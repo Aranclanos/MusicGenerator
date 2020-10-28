@@ -17,19 +17,7 @@ public class MusicPlayer : MonoBehaviour
     public List<Notation> notationList =new List<Notation>();
 
     public GameObject notePlayerPrefab;
-
-    public void Start()
-    {
-        for (int i = 0; i < 20; i++)
-        {
-            var notePlayerObject = Instantiate(notePlayerPrefab);
-            notePlayerObject.transform.SetParent(gameObject.transform);
-            var notePlayer = notePlayerObject.GetComponent<NotePlayer>();
-            notePlayerList.Add(notePlayer);
-        }
-        
-    }
-
+    
     public void Play()
     {
         if (songGenerator.melodyList.Count == 0)
@@ -101,20 +89,32 @@ public class MusicPlayer : MonoBehaviour
 
     void PlaySound(float time, ExactNote note, Vector3 noteposition)
     {
+        var notePlayer = GetNotePlayer();
+        notePlayer.audioSource.volume = 1;
+        notePlayer.audioSource.clip = clipList[(int)note];
+        notePlayer.finishTime = time + currentTime;
+        notePlayer.playingSound = true;
+        notePlayer.gameObject.name = $"playing {note.ToString()}";
+        notePlayer.audioSource.Play();
+        SetLightPosition(notePlayer.light, noteposition.x, noteposition.y);
+        return;
+        
+
+    }
+
+    NotePlayer GetNotePlayer()
+    {
         foreach (var notePlayer in notePlayerList)
         {
             if(notePlayer.playingSound)
                 continue;
-            notePlayer.audioSource.volume = 1;
-            notePlayer.audioSource.clip = clipList[(int)note];
-            notePlayer.finishTime = time + currentTime;
-            notePlayer.playingSound = true;
-            notePlayer.gameObject.name = $"playing {note.ToString()}";
-            notePlayer.audioSource.Play();
-            SetLightPosition(notePlayer.light, noteposition.x, noteposition.y);
-            return;
+            return notePlayer;
         }
-
+        var notePlayerObject = Instantiate(notePlayerPrefab);
+        notePlayerObject.transform.SetParent(gameObject.transform);
+        var newNotePlayer = notePlayerObject.GetComponent<NotePlayer>();
+        notePlayerList.Add(newNotePlayer);
+        return newNotePlayer;
     }
 
 }
