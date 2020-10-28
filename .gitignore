@@ -12,6 +12,10 @@
 
 /MusicGenerator/[Ll]ibrary/
 /MusicGenerator/.idea/
+/MusicGenerator/UserSettings/
+/MusicGenerator/Packages/
+/MusicGenerator/Logs/
+/MusicGenerator/Temp/
 
 # Asset meta data should only be ignored when the corresponding asset is also ignored
 !/[Aa]ssets/**/*.meta
