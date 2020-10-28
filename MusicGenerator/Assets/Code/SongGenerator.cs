@@ -274,10 +274,18 @@ public class SongGenerator : MonoBehaviour
             {
                 var pitch = Random.Range(0, gradoList.Count);
                 noteLenght = CreateNoteLenght(j);
+                if ((int) noteLenght > j)
+                {
+                    Debug.LogWarning($"remaining space: {j} --- notelenght picked: {(int)noteLenght}");
+                }
                 CreateNotation(pitch, noteLenght, currentTime);
                 currentTime += (int) noteLenght;
             }
         }
+
+        var lastNote = melodyList[melodyList.Count-1];
+        lastNote.pitch = 0;
+        lastNote.exactNote = (ExactNote)(gradoList[0].semitono + notaBase + 12);
     }
 
     void CreateNotation(int pitch, NoteLenght noteLenght, int time)
@@ -287,6 +295,7 @@ public class SongGenerator : MonoBehaviour
         notation.pitch = pitch;
         notation.noteLenght = noteLenght;
         notation.time = time;
+        notation.exactNote = (ExactNote)(gradoList[pitch].semitono + notaBase + 12);
         melodyList.Add(notation);
     }
     
@@ -297,31 +306,33 @@ public class SongGenerator : MonoBehaviour
         notation.pitch = pitch;
         notation.noteLenght = noteLenght;
         notation.time = time;
+        notation.exactNote = (ExactNote)(gradoList[pitch].semitono + notaBase);
         chordList.Add(notation);
     }
     NoteLenght CreateNoteLenght(int remainingSpace)
     {
-        if (remainingSpace == (int)NoteLenght.sixteenth)
+        if (remainingSpace == 1)
         {
             return NoteLenght.sixteenth;
         }
         
         if (Random.Range(0, 100) < 20)
         {
-            if (remainingSpace == (int) NoteLenght.half)
-                remainingSpace = (int)NoteLenght.quarterHalfOne;
+            var value = Random.Range(1, remainingSpace+1);
             
-            var value = Random.Range((int)NoteLenght.eightHalf, remainingSpace-1);
-
-            if (value == 3)
+            if(value == 1)
+                return NoteLenght.sixteenth;
+            if(value == 2)
+                return NoteLenght.eight;
+            if(value == 3)
                 return NoteLenght.eightHalf;
-            else if(value == 4)
+            if(value == 4)
                 return NoteLenght.quarter;
-            else if(value == 5)
+            if(value == 5)
                 return NoteLenght.quarterOne;
-            else if(value == 6)
+            if(value == 6)
                 return NoteLenght.quarterHalf;
-            else if(value == 7)
+            if(value == 7)
                 return NoteLenght.quarterHalfOne;
         }
         
