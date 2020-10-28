@@ -80,7 +80,7 @@ public class SongGenerator : MonoBehaviour
         melodyList.Clear();
         chordList.Clear();
         
-        tempo = Random.Range(50, 200);
+        tempo = Random.Range(32, 222);
         PickScale();
         GenerateChords();
         GenerateMelody();
