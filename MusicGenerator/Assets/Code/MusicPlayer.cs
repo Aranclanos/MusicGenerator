@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class MusicPlayer : MonoBehaviour
 {
@@ -17,6 +18,9 @@ public class MusicPlayer : MonoBehaviour
     public List<Notation> notationList =new List<Notation>();
 
     public GameObject notePlayerPrefab;
+
+    public Button playButton;
+    public Button stopPlayButton;
     
     public void Play()
     {
@@ -27,6 +31,7 @@ public class MusicPlayer : MonoBehaviour
         notationList.AddRange(songGenerator.melodyList);
         notationList.AddRange(songGenerator.chordList);
         playingSong = true;
+        stopPlayButton.interactable = true;
     }
 
     public void Stop()
@@ -42,6 +47,7 @@ public class MusicPlayer : MonoBehaviour
             notePlayer.finishTime = -1;
         }
         playingSong = false;
+        stopPlayButton.interactable = false;
     }
 
     void Update()
@@ -78,8 +84,6 @@ public class MusicPlayer : MonoBehaviour
             notation.playedNote = true;
             PlaySound((int)notation.noteLenght, notation.exactNote, notation.gameObject.transform.position);
         }
-
-
     }
 
     void SetLightPosition(Light light, float x, float y)

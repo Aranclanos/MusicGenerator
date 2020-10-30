@@ -24,6 +24,12 @@ public class Display : MonoBehaviour
     public List<string> noteNamesList = new List<string>(){"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
     
     public List<Sprite> spriteList = new List<Sprite>();
+    public List<SpriteRenderer> cyanNoteList = new List<SpriteRenderer>();
+
+    public Sprite redArrowUp;
+    public Sprite redArrowDown;
+    public Sprite greenArrowUp;
+    public Sprite greenArrowDown;
     
     public void RunDisplay()
     {
@@ -33,7 +39,16 @@ public class Display : MonoBehaviour
         tempoText.text = $"Tempo: {songGenerator.tempo}";
         escalaText.text = $"Escala: {songGenerator.escala.name}";
         notaBaseText.text = $"Nota base: {noteNamesList[songGenerator.notaBase]}";
-        
+
+        for (var i = 0; i < cyanNoteList.Count; i++)
+        {
+            var cyanSprite = spriteList[i];
+            if (cyanSprite != null)
+            {
+                cyanNoteList[i].sprite = cyanSprite;
+            }
+        }
+
         for (var i = 0; i < songGenerator.chordList.Count; i++) // green chords
         {
             var notation = songGenerator.chordList[i];
@@ -52,7 +67,8 @@ public class Display : MonoBehaviour
             float yPosition = songGenerator.gradoList[notation.pitch].semitono + songGenerator.notaBase;
             notation.noteCube.transform.localScale = new Vector3((float)notation.noteLenght/2, notation.noteCube.transform.localScale.y, 1);
             float offsetExtra = (notation.noteCube.transform.localScale.x - 1) / 2 -1.5f;
-            purpleNote.transform.position = new Vector3(notation.time/2 + offsetExtra, yPosition/2 + 6 ,-2);
+            //offsetExtra = -1.5f;
+            purpleNote.transform.position = new Vector3((float)notation.time/2 + offsetExtra, yPosition/2 + 6 ,-2);
             purpleNote.name = $"melody note:  pitch: {notation.pitch} --- length: {(int)notation.noteLenght}";
         }
 

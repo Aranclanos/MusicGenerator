@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
 public class SongGenerator : MonoBehaviour
@@ -21,13 +22,18 @@ public class SongGenerator : MonoBehaviour
     public List<int> acordeSeptimaList = new List<int>();
     public int tonicTension = 0;
     public int medianteTension = 0;
-    public int antiTension = 0;
+    public int antiTonicTension = 0;
+    public int antiMedianteTension = 0;
+    
 
     public Display display;
     public MusicPlayer musicPlayer;
     
     public List<Notation> melodyList = new List<Notation>();
     public List<Notation> chordList = new List<Notation>();
+    
+    //
+    public Button playButton;
     
     private void Start()
     {
@@ -52,19 +58,19 @@ public class SongGenerator : MonoBehaviour
             escalaList.Add(escala);
         }
 
-        escalaList[0].name = "jonico";
-        escalaList[0].semiTonos = new List<int>(){0,2,2,1,2,2,2,1}; //1
-        escalaList[1].name = "dorico";
+        escalaList[0].name = "Ionian"; //jonico
+        escalaList[0].semiTonos = new List<int>(){0,2,2,1,2,2,2,1}; 
+        escalaList[1].name = "Dorian"; //dorico
         escalaList[1].semiTonos = new List<int>(){0,2,1,2,2,2,1,2};
-        escalaList[2].name = "frigio";
+        escalaList[2].name = "Phrygian"; //frigio
         escalaList[2].semiTonos = new List<int>(){0,1,2,2,2,1,2,2};
-        escalaList[3].name = "lidio";
+        escalaList[3].name = "Lydian"; //lidio
         escalaList[3].semiTonos = new List<int>(){0,2,2,2,1,2,2,1};
-        escalaList[4].name = "mixolidio";
+        escalaList[4].name = "Mixolydian"; //mixolidio
         escalaList[4].semiTonos = new List<int>(){0,2,2,1,2,2,1,2};
-        escalaList[5].name = "eolico";
+        escalaList[5].name = "Aeolian"; //eolico
         escalaList[5].semiTonos = new List<int>(){0,2,1,2,2,1,2,2};
-        escalaList[6].name = "locrio";
+        escalaList[6].name = "Locrian"; //locrio
         escalaList[6].semiTonos = new List<int>(){0,1,2,2,1,2,2,2};
 
 
@@ -72,6 +78,7 @@ public class SongGenerator : MonoBehaviour
 
     public void RunProgram()
     {
+        musicPlayer.playButton.interactable = true;
         musicPlayer.Stop();
         acordePrimeraList.Clear();
         acordeTerceraList.Clear();
@@ -98,47 +105,55 @@ public class SongGenerator : MonoBehaviour
             semitonoIndex += escala.semiTonos[i];
             gradoList[i].semitono = semitonoIndex;
         }
+
+        gradoList[0].antiTonicTension = 50;
+        gradoList[2].antiMedianteTension = 50;
         
-        SetGradoTension(1, false, true);    // II Supertonica
-        SetGradoTension(3, false, false);    // IV Subdominante
-        SetGradoTension(6, true, true);     // VII Sensible
-
-    }
-
-    private void SetGradoTension(int index, bool leadingTone, bool isTonicTension)
-    {
-        var grado = gradoList[index];
-        if (leadingTone)
+        if (escala.semiTonos[1] == 1)    // II Supertonica
         {
-            index++; //using the semitone needed to go higher pitch to the tonic
-        }
-        var tension = 25;
-        if (escala.semiTonos[index] == 1)
-        {
-            tension = 50;
-        }
-
-        if (isTonicTension)
-        {
-            grado.medianteTension = tension;
+            gradoList[1].tonicTension = 50;
+            display.spriteList[1] = display.redArrowDown;
         }
         else
         {
-            grado.medianteTension = tension;
+            gradoList[1].tonicTension = 25;
+            display.spriteList[1] = display.greenArrowDown;
         }
+ 
+        if (escala.semiTonos[3] == 1)    // IV Subdominante
+        {
+            gradoList[3].medianteTension = 50;
+            display.spriteList[3] = display.redArrowDown;
+        }
+        else
+        {
+            gradoList[3].medianteTension = 25;
+            display.spriteList[3] = display.greenArrowDown;
+        }
+        
+        if (escala.semiTonos[7] == 1)     // VII Sensible
+        {
+            gradoList[6].tonicTension = 50;
+            display.spriteList[6] = display.redArrowUp;
+        }
+        else
+        {
+            gradoList[6].tonicTension = 25;
+            display.spriteList[6] = display.greenArrowUp;
+        }
+
     }
-    
 
     void GenerateChords()
     {
         tonicTension = 0;
         medianteTension = 0;
-        antiTension = 0;
         int time = 0;
         for (var i = 0; i < 8; i++)
         {
-            if (i == 7)
-                tonicTension = 200;
+            if (i == 7)      //hardcode force mediante on last note                
+                tonicTension = 1000;
+            
             var includeSeptima = Random.Range(0, 100) > 75;
             
             var primera = ReturnPrimera(includeSeptima);
@@ -157,6 +172,8 @@ public class SongGenerator : MonoBehaviour
             {
                 medianteTension += gradoList[septima].medianteTension;
                 tonicTension += gradoList[septima].tonicTension;
+                antiTonicTension += gradoList[septima].antiTonicTension;
+                antiMedianteTension += gradoList[septima].antiMedianteTension;
                 acordeSeptimaList.Add(septima); //TODO: remove
                 CreateNotationChord(septima, NoteLenght.half, time);
             }
@@ -169,11 +186,19 @@ public class SongGenerator : MonoBehaviour
 
             medianteTension += gradoList[primera].medianteTension + gradoList[tercera].medianteTension + gradoList[quinta].medianteTension;
             tonicTension += gradoList[primera].tonicTension + gradoList[tercera].tonicTension + gradoList[quinta].tonicTension;
+            antiTonicTension += gradoList[primera].antiTonicTension + gradoList[tercera].antiTonicTension + gradoList[quinta].antiTonicTension;
+            antiMedianteTension += gradoList[primera].antiMedianteTension + gradoList[tercera].antiMedianteTension + gradoList[quinta].antiMedianteTension;
             
             if (ContainsGrado(primera, tercera, quinta, septima, includeSeptima, GradoName.mediante))
                 medianteTension = 0;
             if (ContainsGrado(primera, tercera, quinta, septima, includeSeptima, GradoName.tonica))
                 tonicTension = 0;
+            if (ContainsGrado(primera, tercera, quinta, septima, includeSeptima, GradoName.sensible))
+                antiTonicTension = 0;
+            if (ContainsGrado(primera, tercera, quinta, septima, includeSeptima, GradoName.supertonica))
+                antiTonicTension = 0;
+            if (ContainsGrado(primera, tercera, quinta, septima, includeSeptima, GradoName.subdominante))
+                antiMedianteTension = 0;
         }
     }
     
@@ -181,45 +206,52 @@ public class SongGenerator : MonoBehaviour
 
     int ReturnPrimera(bool includeSeptima)
     {
-        var includeTonic = Random.Range(0, 100) < tonicTension;
-        var includeMediante = Random.Range(0, 100) < medianteTension;
+        var mustInclude = new List<GradoName>();
 
-        var primera = Random.Range(0, gradoList.Count);
-        var tercera = TwoGradosAbove(primera);
-        var quinta = TwoGradosAbove(tercera);
-        var septima = TwoGradosAbove(quinta);
-        if (!includeSeptima)
-            septima = -1;
+        if ((tonicTension + medianteTension) > (antiTonicTension + antiMedianteTension))
+        {
+            if (Random.Range(0, 100) < tonicTension)
+                mustInclude.Add(GradoName.tonica);
+            if (Random.Range(0, 100) < medianteTension)
+                mustInclude.Add(GradoName.mediante);
+        }
+        else
+        {
+            if (Random.Range(0, 100) < antiMedianteTension)
+                mustInclude.Add(GradoName.subdominante);
+            if (Random.Range(0, 100) < antiTonicTension)
+                if(Random.Range(0, 100) < 50)
+                    mustInclude.Add(GradoName.sensible);
+                else
+                    mustInclude.Add(GradoName.supertonica);
+        }
+        
+        int primera;
+        int tercera;
+        int quinta;
+        int septima;
         for (int i = 0; i < 1000; i++) //TODO instead of randomly picking and checking if it fits, start a chord using the notes you need
         {
-            if(i == 999)
-                Debug.LogError("ReturnPrimera loop reached 999 iterations");
-            
+            primera = Random.Range(0, gradoList.Count);
             tercera = TwoGradosAbove(primera);
             quinta = TwoGradosAbove(tercera);
             septima = TwoGradosAbove(quinta);
-            if (!includeSeptima)
-                septima = -1;
-            if (includeTonic)
+            var notFound = false;
+            foreach (var including in mustInclude)
             {
-                if (!ContainsGrado(primera, tercera, quinta, septima, includeSeptima, GradoName.tonica))
+                if (!ContainsGrado(primera, tercera, quinta, septima, includeSeptima, including))
                 {
-                    primera = Random.Range(0, gradoList.Count);
-                    continue;
+                    notFound = true;
+                    break;
                 }
             }
-            if (includeMediante)
-            {
-                if (!ContainsGrado(primera, tercera, quinta, septima, includeSeptima, GradoName.mediante))
-                {
-                    primera = Random.Range(0, gradoList.Count);
-                    continue;
-                }
-            }
-            break;
+            if(notFound)
+                continue;
+            return primera;
         }
-        //Debug.Log($"Creating chord --- includeTonic: {includeTonic.ToString()} tonicTension: {tonicTension} --- includeMediante: {includeMediante.ToString()} medianteTension: {medianteTension} --- chords {primera}, {tercera}, {quinta}, {septima}");
-        return primera;
+        
+        Debug.LogError("ReturnPrimera loop reached 1000 iterations");
+        return 0;
     }
 
     bool ContainsGrado(int primera, int tercera, int quinta, int septima, bool includeSeptima,  GradoName gradoName)
@@ -316,7 +348,7 @@ public class SongGenerator : MonoBehaviour
             return NoteLenght.sixteenth;
         }
         
-        if (Random.Range(0, 100) < 20)
+        if (Random.Range(0, 100) < 30)
         {
             var value = Random.Range(1, remainingSpace+1);
             
@@ -356,6 +388,8 @@ public class Grado
     public string name;
     public int tonicTension = 0;
     public int medianteTension = 0;
+    public int antiTonicTension = 0;
+    public int antiMedianteTension = 0;
     public GradoName gradoName;
 }
 
