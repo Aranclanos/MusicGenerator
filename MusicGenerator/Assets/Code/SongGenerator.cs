@@ -281,12 +281,14 @@ public class SongGenerator : MonoBehaviour
     void GenerateMelody()
     {
         var currentTime = 0;
+        var lastPitch = 0;
         for (int i = 0; i < acordePrimeraList.Count; i++)
         {
             int chordNotes = 3;
             if (acordeSeptimaList[i] != -1)
                 chordNotes++;
             var startTone = Random.Range(0, chordNotes);
+            lastPitch = startTone;
             int startPitch = 0;
             if (startTone == 0)
                 startPitch = acordePrimeraList[i];
@@ -304,13 +306,13 @@ public class SongGenerator : MonoBehaviour
             NoteLenght noteLenght;
             for (var j = (int)NoteLenght.half - (int)startLenght; j > 0; j -= (int)noteLenght)
             {
-                var pitch = Random.Range(0, gradoList.Count);
+                lastPitch = PickMelodyNote(lastPitch);
                 noteLenght = CreateNoteLenght(j);
                 if ((int) noteLenght > j)
                 {
                     Debug.LogWarning($"remaining space: {j} --- notelenght picked: {(int)noteLenght}");
                 }
-                CreateNotation(pitch, noteLenght, currentTime);
+                CreateNotation(lastPitch, noteLenght, currentTime);
                 currentTime += (int) noteLenght;
             }
         }
@@ -318,6 +320,32 @@ public class SongGenerator : MonoBehaviour
         var lastNote = melodyList[melodyList.Count-1];
         lastNote.pitch = 0;
         lastNote.exactNote = (ExactNote)(gradoList[0].semitono + notaBase + 12);
+    }
+
+    int PickMelodyNote(int lastPitch)
+    {
+        int pitch = lastPitch;
+        if (Random.Range(0, 100) < 80)
+        {
+            var direction = Random.Range(0, 100);
+            if (direction < 33)
+            {
+                pitch -= 1;
+                if (pitch < 0)
+                    return lastPitch;
+            }
+            else if (direction < 66)
+            {
+                pitch += 1;
+                if (pitch >= gradoList.Count)
+                    return lastPitch;
+            }
+        }
+        else
+        {
+            pitch = Random.Range(0, gradoList.Count);
+        }
+        return pitch;
     }
 
     void CreateNotation(int pitch, NoteLenght noteLenght, int time)
